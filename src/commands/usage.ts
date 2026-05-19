@@ -1,4 +1,5 @@
 import { getDemoUsageSummary } from "../core/demo-data.js";
+import { createUsageStore, filterSessionsForCwd, summarizeSessions } from "../core/store.js";
 import type { RenderStyle } from "../core/types.js";
 import { renderUsage } from "../render/usage.js";
 
@@ -8,11 +9,19 @@ export type UsageCommandOptions = {
   json?: boolean;
   color?: boolean;
   cwd?: string;
+  allProjects?: boolean;
+  home?: string;
 };
 
 export function runUsageCommand(options: UsageCommandOptions): string {
   const cwd = options.cwd ?? process.cwd();
-  const summary = getDemoUsageSummary(cwd);
+  const store = createUsageStore(options.home);
+  const sessions = options.demo
+    ? []
+    : options.allProjects
+      ? store.readSessions()
+      : filterSessionsForCwd(store.readSessions(), cwd);
+  const summary = options.demo ? getDemoUsageSummary(cwd) : summarizeSessions(sessions, cwd, "All time");
 
   if (options.json) {
     return `${JSON.stringify(summary, null, 2)}\n`;

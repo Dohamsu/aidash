@@ -1,16 +1,11 @@
-import path from "node:path";
 import type { RecentSession, UsageBucket, UsageSummary } from "./types.js";
+import { projectFromCwd } from "./store.js";
 
 function withPercent<T extends Omit<UsageBucket, "percent">>(items: T[], total: number): UsageBucket[] {
   return items.map((item) => ({
     ...item,
     percent: total === 0 ? 0 : item.tokens / total,
   }));
-}
-
-function projectFromCwd(cwd: string): string {
-  const normalized = path.resolve(cwd);
-  return path.basename(normalized) || "workspace";
 }
 
 export function getDemoUsageSummary(cwd = process.cwd()): UsageSummary {
@@ -52,7 +47,7 @@ export function getDemoUsageSummary(cwd = process.cwd()): UsageSummary {
     generatedAt: "2026-05-19T17:00:00+09:00",
     rangeLabel: "Today",
     project: projectFromCwd(cwd),
-    cwd: path.resolve(cwd),
+    cwd,
     totals: {
       sessions: 7,
       tokens: totalTokens,

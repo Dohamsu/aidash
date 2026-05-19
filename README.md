@@ -4,21 +4,34 @@ Claude Code, Codex, OpenCode 같은 AI coding CLI 사용량과 작업 성과를 
 
 ## 현재 MVP
 
-데이터 수집/SQLite 이전 단계로, demo data 기반 텍스트 대시보드를 먼저 구현했습니다.
+로컬 JSONL store 기반으로 사용량을 저장/조회하고, Claude Code print-mode JSON 출력에서 실제 token/cost를 캡처합니다.
 
 ```bash
 pnpm install
+pnpm build
+
+# 로컬 store 초기화
+node dist/cli.js init
+
+# Claude Code를 감싸서 실행하면 실제 usage/cost를 저장
+node dist/cli.js run claude -p "Reply with OK only" --output-format json --max-turns 1
+
+# 현재 프로젝트 사용량 조회
+node dist/cli.js usage --style dashboard
+node dist/cli.js usage --style compact --no-color
+node dist/cli.js usage --json
+
+# 수동 기록도 가능
+node dist/cli.js record --agent Claude --tokens 12345 --cost 0.12 --topic bugfix
+```
+
+개발 중 demo UI 확인:
+
+```bash
 pnpm dev usage --demo --style dashboard --no-color
 pnpm dev usage --demo --style compact --no-color
 pnpm dev usage --demo --style plain --no-color
 pnpm dev usage --demo --json
-```
-
-빌드 후 실행:
-
-```bash
-pnpm build
-node dist/cli.js usage --demo --style compact --no-color
 ```
 
 검증:

@@ -1,4 +1,25 @@
-export type AgentName = "Claude" | "Codex" | "OpenCode";
+export type AgentName = "Claude" | "Codex" | "OpenCode" | "Other";
+
+export type TokenSource = "actual" | "estimated" | "unknown" | "manual";
+
+export type StoredSession = {
+  id: string;
+  startedAt: string;
+  endedAt: string;
+  project: string;
+  cwd: string;
+  agent: AgentName;
+  command: string;
+  topic: string;
+  summary: string;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  costUsd: number;
+  durationMinutes: number;
+  tokenSource: TokenSource;
+  exitCode: number;
+};
 
 export type UsageBucket = {
   name: string;
