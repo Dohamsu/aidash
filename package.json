@@ -1,0 +1,36 @@
+{
+  "name": "aidash",
+  "version": "0.1.0",
+  "description": "Local-first CLI dashboard for AI coding CLI usage.",
+  "type": "module",
+  "bin": {
+    "aidash": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsup src/cli.ts --format esm --dts --clean --sourcemap && chmod +x dist/cli.js"
+  },
+  "dependencies": {
+    "commander": "14.0.2",
+    "picocolors": "1.1.1",
+    "string-width": "8.1.0",
+    "strip-ansi": "7.1.2",
+    "wrap-ansi": "9.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "tsx": "4.20.6",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.0.13"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.28.2"
+}
