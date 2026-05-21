@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import type { AgentName, RecentSession, StoredSession, UsageBucket, UsageSummary } from "./types.js";
+import type { AgentName, RecentSession, StoredSession, TokenBreakdown, UsageBucket, UsageSummary } from "./types.js";
 
 const STORE_FILE = "sessions.jsonl";
 
@@ -50,6 +50,7 @@ export function projectFromCwd(cwd: string): string {
 export function summarizeSessions(sessions: StoredSession[], cwd = process.cwd(), rangeLabel = "All time"): UsageSummary {
   const project = projectFromCwd(cwd);
   const totalTokens = sessions.reduce((sum, session) => sum + session.totalTokens, 0);
+  const tokenBreakdown = sessions.reduce((sum, session) => addTokenBreakdown(sum, tokenBreakdownForSession(session)), emptyTokenBreakdown());
   const totalCost = sessions.reduce((sum, session) => sum + session.costUsd, 0);
 
   return {
@@ -60,6 +61,7 @@ export function summarizeSessions(sessions: StoredSession[], cwd = process.cwd()
     totals: {
       sessions: sessions.length,
       tokens: totalTokens,
+      tokenBreakdown,
       costUsd: roundMoney(totalCost),
     },
     byAgent: bucketsBy(sessions, (session) => session.agent, totalTokens),
@@ -125,8 +127,33 @@ function toRecentSession(session: StoredSession): RecentSession {
     topic: session.topic,
     summary: session.summary,
     tokens: session.totalTokens,
+    tokenBreakdown: tokenBreakdownForSession(session),
     costUsd: session.costUsd,
     durationMinutes: session.durationMinutes,
+  };
+}
+
+function tokenBreakdownForSession(session: StoredSession): TokenBreakdown {
+  return session.tokenBreakdown ?? {
+    inputTokens: session.inputTokens,
+    cacheCreationInputTokens: 0,
+    cacheReadInputTokens: 0,
+    outputTokens: session.outputTokens,
+    totalTokens: session.totalTokens,
+  };
+}
+
+function emptyTokenBreakdown(): TokenBreakdown {
+  return { inputTokens: 0, cacheCreationInputTokens: 0, cacheReadInputTokens: 0, outputTokens: 0, totalTokens: 0 };
+}
+
+function addTokenBreakdown(left: TokenBreakdown, right: TokenBreakdown): TokenBreakdown {
+  return {
+    inputTokens: left.inputTokens + right.inputTokens,
+    cacheCreationInputTokens: left.cacheCreationInputTokens + right.cacheCreationInputTokens,
+    cacheReadInputTokens: left.cacheReadInputTokens + right.cacheReadInputTokens,
+    outputTokens: left.outputTokens + right.outputTokens,
+    totalTokens: left.totalTokens + right.totalTokens,
   };
 }
 

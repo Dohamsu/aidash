@@ -23,6 +23,13 @@ function sample(overrides: Partial<StoredSession> = {}): StoredSession {
     inputTokens: 1000,
     outputTokens: 500,
     totalTokens: 1500,
+    tokenBreakdown: {
+      inputTokens: 800,
+      cacheCreationInputTokens: 100,
+      cacheReadInputTokens: 100,
+      outputTokens: 500,
+      totalTokens: 1500,
+    },
     costUsd: 0.04,
     durationMinutes: 5,
     tokenSource: "actual",
@@ -59,7 +66,19 @@ describe("usage store", () => {
 
     const summary = summarizeSessions(sessions, "/work/graymar", "Today");
 
-    expect(summary.totals).toMatchObject({ sessions: 3, tokens: 2000, costUsd: 0.04 });
+    expect(summary.totals).toMatchObject({
+      sessions: 3,
+      tokens: 2000,
+      costUsd: 0.04,
+      tokenBreakdown: {
+        inputTokens: 2400,
+        cacheCreationInputTokens: 300,
+        cacheReadInputTokens: 300,
+        outputTokens: 1500,
+        totalTokens: 4500,
+      },
+    });
+    expect(summary.recentSessions[0]).toHaveProperty("tokenBreakdown");
     expect(summary.byAgent[0]).toMatchObject({ name: "Claude", tokens: 1500, percent: 0.75 });
     expect(summary.byTopic[0]).toMatchObject({ name: "bugfix", tokens: 1500, percent: 0.75 });
   });

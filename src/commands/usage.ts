@@ -1,7 +1,7 @@
 import { getDemoUsageSummary } from "../core/demo-data.js";
 import { createUsageStore, filterSessionsForCwd, summarizeSessions } from "../core/store.js";
 import type { RenderStyle } from "../core/types.js";
-import { renderUsage } from "../render/usage.js";
+import { renderSessionList, renderUsage } from "../render/usage.js";
 
 export type UsageCommandOptions = {
   demo?: boolean;
@@ -11,6 +11,7 @@ export type UsageCommandOptions = {
   cwd?: string;
   allProjects?: boolean;
   home?: string;
+  sessions?: boolean;
 };
 
 export function runUsageCommand(options: UsageCommandOptions): string {
@@ -30,6 +31,8 @@ export function runUsageCommand(options: UsageCommandOptions): string {
   const style = options.style ?? defaultStyle();
   const color = options.color ?? defaultColor(style);
   const width = process.stdout.columns ?? 80;
+
+  if (options.sessions) return `${renderSessionList(sessions, summary, { width })}\n`;
 
   return `${renderUsage(summary, { style, color, width })}\n`;
 }

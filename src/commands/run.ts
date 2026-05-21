@@ -40,6 +40,7 @@ export function runAndRecord(command: string, args: string[], options: RunComman
     inputTokens: usage.inputTokens,
     outputTokens: usage.outputTokens,
     totalTokens: usage.totalTokens,
+    tokenBreakdown: usage.tokenBreakdown,
     costUsd: usage.costUsd,
     durationMinutes,
     tokenSource: usage.tokenSource,
@@ -51,7 +52,15 @@ export function runAndRecord(command: string, args: string[], options: RunComman
 }
 
 function unknownUsage() {
-  return { inputTokens: 0, outputTokens: 0, totalTokens: 0, costUsd: 0, tokenSource: "unknown" as const, summary: undefined };
+  return {
+    inputTokens: 0,
+    outputTokens: 0,
+    totalTokens: 0,
+    tokenBreakdown: { inputTokens: 0, cacheCreationInputTokens: 0, cacheReadInputTokens: 0, outputTokens: 0, totalTokens: 0 },
+    costUsd: 0,
+    tokenSource: "unknown" as const,
+    summary: undefined,
+  };
 }
 
 function inferTopic(args: string[]): string {

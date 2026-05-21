@@ -1,9 +1,10 @@
-import type { TokenSource } from "../core/types.js";
+import type { TokenBreakdown, TokenSource } from "../core/types.js";
 
 export type CapturedUsage = {
   inputTokens: number;
   outputTokens: number;
   totalTokens: number;
+  tokenBreakdown: TokenBreakdown;
   costUsd: number;
   tokenSource: TokenSource;
   summary?: string;
@@ -12,12 +13,15 @@ export type CapturedUsage = {
 export function parseClaudeJsonUsage(stdout: string): CapturedUsage {
   const parsed = parseJsonObject(stdout);
   if (!parsed) {
-    return { inputTokens: 0, outputTokens: 0, totalTokens: 0, costUsd: 0, tokenSource: "unknown" };
+    return { inputTokens: 0, outputTokens: 0, totalTokens: 0, tokenBreakdown: emptyTokenBreakdown(), costUsd: 0, tokenSource: "unknown" };
   }
 
   const usage = asRecord(parsed.usage);
   const modelUsage = asRecord(parsed.modelUsage);
-  const inputTokens = numberAt(usage, "input_tokens") + numberAt(usage, "cache_creation_input_tokens") + numberAt(usage, "cache_read_input_tokens");
+  const rawInputTokens = numberAt(usage, "input_tokens");
+  const cacheCreationInputTokens = numberAt(usage, "cache_creation_input_tokens");
+  const cacheReadInputTokens = numberAt(usage, "cache_read_input_tokens");
+  const inputTokens = rawInputTokens + cacheCreationInputTokens + cacheReadInputTokens;
   const outputTokens = numberAt(usage, "output_tokens");
   const totalTokensFromUsage = inputTokens + outputTokens;
   const modelTotals = totalModelTokens(modelUsage);
@@ -28,10 +32,21 @@ export function parseClaudeJsonUsage(stdout: string): CapturedUsage {
     inputTokens,
     outputTokens,
     totalTokens,
+    tokenBreakdown: {
+      inputTokens: rawInputTokens,
+      cacheCreationInputTokens,
+      cacheReadInputTokens,
+      outputTokens,
+      totalTokens,
+    },
     costUsd,
     tokenSource: totalTokens || costUsd ? "actual" : "unknown",
     summary: typeof parsed.result === "string" ? firstLine(parsed.result) : undefined,
   };
+}
+
+function emptyTokenBreakdown(): TokenBreakdown {
+  return { inputTokens: 0, cacheCreationInputTokens: 0, cacheReadInputTokens: 0, outputTokens: 0, totalTokens: 0 };
 }
 
 function parseJsonObject(stdout: string): Record<string, unknown> | null {

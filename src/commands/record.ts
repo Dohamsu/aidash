@@ -35,6 +35,13 @@ export function runRecordCommand(options: RecordCommandOptions): string {
     inputTokens,
     outputTokens,
     totalTokens,
+    tokenBreakdown: {
+      inputTokens,
+      cacheCreationInputTokens: 0,
+      cacheReadInputTokens: 0,
+      outputTokens,
+      totalTokens,
+    },
     costUsd: toNumber(options.cost ?? 0),
     durationMinutes: toNumber(options.durationMinutes ?? 0),
     tokenSource: "manual",

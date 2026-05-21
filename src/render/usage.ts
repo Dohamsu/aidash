@@ -1,5 +1,5 @@
 import wrapAnsi from "wrap-ansi";
-import type { RenderOptions, UsageBucket, UsageSummary } from "../core/types.js";
+import type { RenderOptions, StoredSession, UsageBucket, UsageSummary } from "../core/types.js";
 import { renderBar } from "./bar.js";
 import { formatCost, formatPercent, formatTokens } from "./format.js";
 import { colorize, padLeft, padRight, truncate, visibleWidth } from "./text.js";
@@ -8,6 +8,22 @@ export function renderUsage(summary: UsageSummary, options: RenderOptions): stri
   if (options.style === "plain") return renderPlain(summary, options);
   if (options.style === "compact") return renderCompact(summary, options);
   return renderDashboard(summary, options);
+}
+
+export function renderSessionList(sessions: StoredSession[], summary: UsageSummary, options: Pick<RenderOptions, "width">): string {
+  const width = Math.max(60, options.width);
+  const totalTokens = summary.totals.tokens;
+  const lines = [
+    `AIDash sessions - ${summary.rangeLabel} - ${summary.project}`,
+    `Total: ${formatTokens(totalTokens)} tokens across ${sessions.length} sessions`,
+    "",
+    ...sessions
+      .slice()
+      .sort((a, b) => b.totalTokens - a.totalTokens || b.startedAt.localeCompare(a.startedAt))
+      .map((session) => sessionLine(session, totalTokens)),
+  ];
+
+  return lines.map((line) => wrapAnsi(line, width, { hard: false, trim: false })).join("\n");
 }
 
 function renderDashboard(summary: UsageSummary, options: RenderOptions): string {
@@ -66,6 +82,10 @@ function renderPlain(summary: UsageSummary, options: RenderOptions): string {
     `AIDash usage - ${summary.rangeLabel} - ${summary.project}`,
     `Sessions: ${summary.totals.sessions}`,
     `Tokens: ${formatTokens(summary.totals.tokens)}`,
+    `Input: ${formatTokens(summary.totals.tokenBreakdown.inputTokens)}`,
+    `Cache creation: ${formatTokens(summary.totals.tokenBreakdown.cacheCreationInputTokens)}`,
+    `Cache read: ${formatTokens(summary.totals.tokenBreakdown.cacheReadInputTokens)}`,
+    `Output: ${formatTokens(summary.totals.tokenBreakdown.outputTokens)}`,
     `Cost: ${formatCost(summary.totals.costUsd)}`,
     "",
     "By agent",
@@ -84,8 +104,35 @@ function renderPlain(summary: UsageSummary, options: RenderOptions): string {
   return lines.map((line) => wrapAnsi(line, width, { hard: false, trim: false })).join("\n");
 }
 
+function sessionLine(session: StoredSession, totalTokens: number): string {
+  const percent = totalTokens === 0 ? 0 : session.totalTokens / totalTokens;
+  const started = sessionDateTime(session.startedAt);
+  const topic = truncate(session.topic || "untitled", 24);
+  return [
+    started,
+    padRight(session.agent, 7),
+    padRight(topic, 16),
+    `${formatTokens(session.totalTokens)} tokens`,
+    renderBar(percent, 12, false),
+    formatPercent(percent),
+    formatCost(session.costUsd),
+    `${session.durationMinutes}m`,
+  ].join(" ");
+}
+
+function sessionDateTime(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "---- --:--";
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${month}-${day} ${hours}:${minutes}`;
+}
+
 function metricsLine(summary: UsageSummary, width: number): string {
-  const raw = `Sessions ${summary.totals.sessions}   Tokens ${formatTokens(summary.totals.tokens)}   Cost ${formatCost(summary.totals.costUsd)}`;
+  const tokens = summary.totals.tokenBreakdown;
+  const raw = `Sessions ${summary.totals.sessions}   Tokens ${formatTokens(summary.totals.tokens)}   Input ${formatTokens(tokens.inputTokens)}   Cache ${formatTokens(tokens.cacheCreationInputTokens + tokens.cacheReadInputTokens)}   Output ${formatTokens(tokens.outputTokens)}   Cost ${formatCost(summary.totals.costUsd)}`;
   return truncate(raw, width);
 }
 

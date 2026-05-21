@@ -19,10 +19,43 @@ node dist/cli.js run claude -p "Reply with OK only" --output-format json --max-t
 # 현재 프로젝트 사용량 조회
 node dist/cli.js usage --style dashboard
 node dist/cli.js usage --style compact --no-color
+node dist/cli.js usage --sessions --no-color    # 세션별 토큰 비율 프로그레스바
 node dist/cli.js usage --json
 
 # 수동 기록도 가능
 node dist/cli.js record --agent Claude --tokens 12345 --cost 0.12 --topic bugfix
+# Claude Code transcript history backfill (dry-run first)
+node dist/cli.js import claude-history --dry-run
+node dist/cli.js import claude-history
+
+# Import one completed Claude Code transcript (used by hooks)
+printf '{"transcript_path":"/path/to/session.jsonl"}' | node dist/cli.js import-claude-session
+
+# Current / live Claude Code transcript usage
+node dist/cli.js claude-current
+node dist/cli.js claude-current --compact      # /au-style compact output with progress bar
+node dist/cli.js claude-current --watch --interval 2
+node dist/cli.js claude-current --json
+
+# Diagnose Claude integration
+node dist/cli.js doctor claude --cli-path /absolute/path/to/dist/cli.js
+
+# Background snapshot daemon (macOS launchd periodic one-shot)
+node dist/cli.js install-claude-current-agent --dry-run --cli-path /absolute/path/to/dist/cli.js --interval 5
+node dist/cli.js install-claude-current-agent --cli-path /absolute/path/to/dist/cli.js --interval 5
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.aidash.claude-current.plist
+launchctl kickstart -k gui/$(id -u)/com.aidash.claude-current
+node dist/cli.js claude-current-daemon --once
+
+# Install integrations (dry-run first)
+node dist/cli.js install shell --dry-run       # zsh function: claude -> aidash run claude
+node dist/cli.js install-claude --dry-run --cli-path /absolute/path/to/dist/cli.js # Stop hook + /aiusage + /au
+node dist/cli.js install-claude-hook --dry-run # Claude Stop hook only
+node dist/cli.js install-claude-aiusage --dry-run --cli-path /absolute/path/to/dist/cli.js # slash commands only
+
+# Enable them when ready
+node dist/cli.js install shell
+node dist/cli.js install-claude --cli-path /absolute/path/to/dist/cli.js
 ```
 
 개발 중 demo UI 확인:
@@ -30,6 +63,7 @@ node dist/cli.js record --agent Claude --tokens 12345 --cost 0.12 --topic bugfix
 ```bash
 pnpm dev usage --demo --style dashboard --no-color
 pnpm dev usage --demo --style compact --no-color
+pnpm dev usage --sessions --no-color
 pnpm dev usage --demo --style plain --no-color
 pnpm dev usage --demo --json
 ```

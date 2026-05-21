@@ -18,6 +18,7 @@ export function getDemoUsageSummary(cwd = process.cwd()): UsageSummary {
       topic: "combat loop bugfix",
       summary: "Fixed combat loop bugfix",
       tokens: 51_240,
+      tokenBreakdown: { inputTokens: 24_000, cacheCreationInputTokens: 12_000, cacheReadInputTokens: 5_000, outputTokens: 10_240, totalTokens: 51_240 },
       costUsd: 0.26,
       durationMinutes: 38,
     },
@@ -28,6 +29,7 @@ export function getDemoUsageSummary(cwd = process.cwd()): UsageSummary {
       topic: "UI cleanup",
       summary: "Tightened CLI dashboard layout",
       tokens: 23_040,
+      tokenBreakdown: { inputTokens: 10_000, cacheCreationInputTokens: 5_000, cacheReadInputTokens: 2_000, outputTokens: 6_040, totalTokens: 23_040 },
       costUsd: 0.11,
       durationMinutes: 18,
     },
@@ -38,6 +40,7 @@ export function getDemoUsageSummary(cwd = process.cwd()): UsageSummary {
       topic: "browser playtest",
       summary: "Verified playtest flow",
       tokens: 62_100,
+      tokenBreakdown: { inputTokens: 54_000, cacheCreationInputTokens: 25_000, cacheReadInputTokens: 11_000, outputTokens: 19_920, totalTokens: 109_920 },
       costUsd: 0.31,
       durationMinutes: 44,
     },
@@ -51,6 +54,7 @@ export function getDemoUsageSummary(cwd = process.cwd()): UsageSummary {
     totals: {
       sessions: 7,
       tokens: totalTokens,
+      tokenBreakdown: { inputTokens: 88_000, cacheCreationInputTokens: 42_000, cacheReadInputTokens: 18_000, outputTokens: 36_200, totalTokens },
       costUsd: 0.92,
     },
     byAgent: withPercent(

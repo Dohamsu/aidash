@@ -2,6 +2,14 @@ export type AgentName = "Claude" | "Codex" | "OpenCode" | "Other";
 
 export type TokenSource = "actual" | "estimated" | "unknown" | "manual";
 
+export type TokenBreakdown = {
+  inputTokens: number;
+  cacheCreationInputTokens: number;
+  cacheReadInputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+};
+
 export type StoredSession = {
   id: string;
   startedAt: string;
@@ -15,6 +23,7 @@ export type StoredSession = {
   inputTokens: number;
   outputTokens: number;
   totalTokens: number;
+  tokenBreakdown: TokenBreakdown;
   costUsd: number;
   durationMinutes: number;
   tokenSource: TokenSource;
@@ -35,6 +44,7 @@ export type RecentSession = {
   topic: string;
   summary: string;
   tokens: number;
+  tokenBreakdown: TokenBreakdown;
   costUsd: number;
   durationMinutes: number;
 };
@@ -47,6 +57,7 @@ export type UsageSummary = {
   totals: {
     sessions: number;
     tokens: number;
+    tokenBreakdown: TokenBreakdown;
     costUsd: number;
   };
   byAgent: UsageBucket[];

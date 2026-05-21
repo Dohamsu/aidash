@@ -12,6 +12,9 @@ describe("usage output modes", () => {
     expect(output).toContain("AIDash");
     expect(output).toContain("Sessions");
     expect(output).toContain("Tokens");
+    expect(output).toContain("Input");
+    expect(output).toContain("Cache");
+    expect(output).toContain("Output");
     expect(output).toContain("Agent");
     expect(output).toContain("Topics");
     expect(output).toContain("Recent");
@@ -32,6 +35,10 @@ describe("usage output modes", () => {
     const output = renderUsage(summary, { style: "plain", color: false, width: 80 });
 
     expect(output).toContain("AIDash usage");
+    expect(output).toContain("Input:");
+    expect(output).toContain("Cache creation:");
+    expect(output).toContain("Cache read:");
+    expect(output).toContain("Output:");
     expect(output).toContain("By agent");
     expect(output).toContain("Recent sessions");
     expect(output).not.toMatch(/[╭╮╰╯│├┤─]/);
@@ -39,6 +46,13 @@ describe("usage output modes", () => {
 
   it("exposes the same summary data as JSON", () => {
     expect(summary.totals.sessions).toBe(7);
+    expect(summary.totals.tokenBreakdown).toMatchObject({
+      inputTokens: 88_000,
+      cacheCreationInputTokens: 42_000,
+      cacheReadInputTokens: 18_000,
+      outputTokens: 36_200,
+      totalTokens: 184_200,
+    });
     expect(summary.byAgent[0]).toMatchObject({ name: "Claude", tokens: 142_100 });
     expect(summary.recentSessions[0]).toHaveProperty("summary");
   });
