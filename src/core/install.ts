@@ -128,7 +128,7 @@ export function installClaudeUsageSlashCommand(options: { commandPath?: string; 
 
 export function installClaudeUsageSlashCommands(options: { commandsDir?: string; names?: string[]; cliPath: string; dryRun?: boolean }): InstallResult[] {
   const dir = options.commandsDir ?? defaultClaudeCommandsDir();
-  const names = options.names ?? ["aiusage", "au"];
+  const names = options.names ?? ["aiusage", "au", "aidash-update"];
   return names.map((name) => installClaudeUsageSlashCommand({ commandPath: path.join(dir, `${name}.md`), commandName: name, cliPath: options.cliPath, dryRun: options.dryRun }));
 }
 
@@ -140,6 +140,8 @@ export function installClaudeCodePackage(options: { settingsPath?: string; comma
 }
 
 function renderClaudeUsageSlashCommand(cliPath: string, commandName: string): string {
+  if (commandName === "aidash-update") return renderAidashUpdateSlashCommand(cliPath);
+
   const currentCommand = commandName === "au" ? `node ${cliPath} claude-current --compact` : `node ${cliPath} claude-current`;
   const detailBlock = commandName === "au"
     ? ""
@@ -159,6 +161,18 @@ Show my current Claude Code usage and completed-session totals.
 
 !\`${currentCommand}\`
 ${detailBlock}
+`;
+}
+
+function renderAidashUpdateSlashCommand(cliPath: string): string {
+  return `---
+description: Update AIDash from git and reinstall Claude Code integrations
+allowed-tools: Bash(node ${cliPath} update:*)
+---
+
+Update the local AIDash checkout, rebuild it, and reinstall Claude Code integrations.
+
+!\`node ${cliPath} update\`
 `;
 }
 

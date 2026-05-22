@@ -7,6 +7,7 @@ import { runInstallClaudeCurrentAgentCommand, runInstallClaudeHookCommand, runIn
 import { runInitCommand } from "./commands/init.js";
 import { runRecordCommand } from "./commands/record.js";
 import { runAndRecord } from "./commands/run.js";
+import { runAidashUpdateCommand } from "./commands/update.js";
 import { runUsageCommand } from "./commands/usage.js";
 import type { AgentName, RenderStyle } from "./core/types.js";
 
@@ -49,6 +50,18 @@ program
         home: options.home,
       }),
     );
+  });
+
+program
+  .command("update")
+  .description("Pull the latest AIDash source, rebuild, and reinstall Claude Code integrations.")
+  .option("--dry-run", "show update commands without running them")
+  .option("--repo-dir <path>", "AIDash git checkout directory")
+  .option("--cli-path <path>", "absolute path to dist/cli.js")
+  .option("--remote <name>", "git remote to pull from", "origin")
+  .option("--branch <name>", "git branch to pull", "main")
+  .action((options) => {
+    process.stdout.write(runAidashUpdateCommand(options));
   });
 
 program

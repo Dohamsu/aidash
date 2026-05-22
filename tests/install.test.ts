@@ -64,11 +64,12 @@ describe("install helpers", () => {
     const dir = mkdtempSync(path.join(tmpdir(), "aidash-commands-"));
     dirs.push(dir);
 
-    const results = installClaudeUsageSlashCommands({ commandsDir: dir, cliPath: "/work/aidash/dist/cli.js", names: ["aiusage", "au"] });
+    const results = installClaudeUsageSlashCommands({ commandsDir: dir, cliPath: "/work/aidash/dist/cli.js" });
 
-    expect(results.map((result) => result.path)).toEqual([path.join(dir, "aiusage.md"), path.join(dir, "au.md")]);
+    expect(results.map((result) => result.path)).toEqual([path.join(dir, "aiusage.md"), path.join(dir, "au.md"), path.join(dir, "aidash-update.md")]);
     expect(readFileSync(path.join(dir, "aiusage.md"), "utf8")).toContain("!`node /work/aidash/dist/cli.js claude-current`");
     expect(readFileSync(path.join(dir, "au.md"), "utf8")).toContain("claude-current --compact");
+    expect(readFileSync(path.join(dir, "aidash-update.md"), "utf8")).toContain("!`node /work/aidash/dist/cli.js update`");
   });
 
   it("installs the Claude Code package in one call", () => {
@@ -79,8 +80,9 @@ describe("install helpers", () => {
 
     const results = installClaudeCodePackage({ settingsPath, commandsDir, cliPath: "/work/aidash/dist/cli.js" });
 
-    expect(results.map((result) => result.path)).toEqual([settingsPath, path.join(commandsDir, "aiusage.md"), path.join(commandsDir, "au.md")]);
+    expect(results.map((result) => result.path)).toEqual([settingsPath, path.join(commandsDir, "aiusage.md"), path.join(commandsDir, "au.md"), path.join(commandsDir, "aidash-update.md")]);
     expect(readFileSync(settingsPath, "utf8")).toContain("import-claude-session");
     expect(readFileSync(path.join(commandsDir, "au.md"), "utf8")).toContain("claude-current --compact");
+    expect(readFileSync(path.join(commandsDir, "aidash-update.md"), "utf8")).toContain("node /work/aidash/dist/cli.js update");
   });
 });

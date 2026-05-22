@@ -20,6 +20,8 @@ node dist/cli.js run claude -p "Reply with OK only" --output-format json --max-t
 node dist/cli.js usage --style dashboard
 node dist/cli.js usage --style compact --no-color
 node dist/cli.js usage --sessions --no-color    # 세션별 토큰 비율 프로그레스바
+node dist/cli.js update --dry-run               # git pull/build/reinstall 계획 확인
+node dist/cli.js update                         # 최신 소스 반영 + Claude 통합 재설치
 node dist/cli.js usage --json
 
 # 수동 기록도 가능
@@ -49,7 +51,7 @@ node dist/cli.js claude-current-daemon --once
 
 # Install integrations (dry-run first)
 node dist/cli.js install shell --dry-run       # zsh function: claude -> aidash run claude
-node dist/cli.js install-claude --dry-run --cli-path /absolute/path/to/dist/cli.js # Stop hook + /aiusage + /au
+node dist/cli.js install-claude --dry-run --cli-path /absolute/path/to/dist/cli.js # Stop hook + /aiusage + /au + /aidash-update
 node dist/cli.js install-claude-hook --dry-run # Claude Stop hook only
 node dist/cli.js install-claude-aiusage --dry-run --cli-path /absolute/path/to/dist/cli.js # slash commands only
 
